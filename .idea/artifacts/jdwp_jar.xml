@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="jdwp:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/jdwp_jar</output-path>
-    <root id="archive" name="jdwp.jar">
-      <element id="module-output" name="jdwp" />
-    </root>
-  </artifact>
-</component>
