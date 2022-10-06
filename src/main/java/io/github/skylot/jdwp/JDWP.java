@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+@SuppressWarnings({"unused", "SameParameterValue"})
 public class JDWP {
 	public static final int PACKET_HEADER_SIZE = 11;
 	private static final byte[] HANDSHAKE_BYTES = "JDWP-Handshake".getBytes();
@@ -326,8 +327,7 @@ public class JDWP {
 		byte[] bytes = new byte[PACKET_HEADER_SIZE];
 		bytes[PACKET_HEADER_SIZE - 2] = (byte) setID;
 		bytes[PACKET_HEADER_SIZE - 1] = (byte) commandID;
-		ByteBuffer buf = new ByteBuffer(bytes);
-		return buf;
+		return new ByteBuffer(bytes);
 	}
 
 	private static void checkCapability(byte[] bytes, int start, int size) throws JdwpRuntimeException {
@@ -1154,8 +1154,7 @@ public class JDWP {
 			public ByteBuffer encode(List<DisposeObjectsRequests> requests) {
 				ByteBuffer bytes = encodeCommandPacket(1, 14);
 				JdwpInt.encode(requests.size(), bytes);
-				for (int i = 0; i < requests.size(); i++) {
-					DisposeObjectsRequests disposeObjectsRequests = requests.get(i);
+				for (DisposeObjectsRequests disposeObjectsRequests : requests) {
 					mObjectID.encode(disposeObjectsRequests.object, bytes);
 					JdwpInt.encode(disposeObjectsRequests.refCnt, bytes);
 				}
@@ -1456,8 +1455,7 @@ public class JDWP {
 			public ByteBuffer encode(List<RedefineClassesClasses> classes) {
 				ByteBuffer bytes = encodeCommandPacket(1, 18);
 				JdwpInt.encode(classes.size(), bytes);
-				for (int i = 0; i < classes.size(); i++) {
-					RedefineClassesClasses redefineClassesClasses = classes.get(i);
+				for (RedefineClassesClasses redefineClassesClasses : classes) {
 					mReferenceTypeID.encode(redefineClassesClasses.refType, bytes);
 					for (int ii = 0; ii < redefineClassesClasses.classfile.size(); ii++) {
 						RedefineClassesClassfile redefineClassesClassfile = redefineClassesClasses.classfile.get(ii);
@@ -1580,8 +1578,7 @@ public class JDWP {
 			public ByteBuffer encode(List<InstanceCountsRefTypesCount> refTypesCount) {
 				ByteBuffer bytes = encodeCommandPacket(1, 21);
 				JdwpInt.encode(refTypesCount.size(), bytes);
-				for (int i = 0; i < refTypesCount.size(); i++) {
-					InstanceCountsRefTypesCount instanceCountsRefTypesCount = refTypesCount.get(i);
+				for (InstanceCountsRefTypesCount instanceCountsRefTypesCount : refTypesCount) {
 					mReferenceTypeID.encode(instanceCountsRefTypesCount.refType, bytes);
 				}
 				setPacketLen(bytes);
@@ -1895,8 +1892,8 @@ public class JDWP {
 
 		/**
 		 * Returns information for each method in a reference type. Inherited methods are not included. The
-		 * list of methods will include constructors (identified with the name "<init>"), the initialization
-		 * method (identified with the name "<clinit>") if present, and any synthetic methods created by the
+		 * list of methods will include constructors (identified with the name {@code "<init>"}), the initialization
+		 * method (identified with the name {@code "<clinit>"}) if present, and any synthetic methods created by the
 		 * compiler. Methods are returned in the order they occur in the class file.
 		 */
 		public class Methods {
@@ -1976,8 +1973,8 @@ public class JDWP {
 				ByteBuffer bytes = encodeCommandPacket(2, 6);
 				mReferenceTypeID.encode(refType, bytes);
 				JdwpInt.encode(fields.size(), bytes);
-				for (int i = 0; i < fields.size(); i++) {
-					mFieldID.encode(fields.get(i), bytes);
+				for (Long aLong : fields) {
+					mFieldID.encode(aLong, bytes);
 				}
 				setPacketLen(bytes);
 				return bytes;
@@ -2351,7 +2348,7 @@ public class JDWP {
 		/**
 		 * Returns information, including the generic signature if any, for each method in a reference type.
 		 * Inherited methodss are not included. The list of methods will include constructors (identified
-		 * with the name "<init>"), the initialization method (identified with the name "<clinit>") if
+		 * with the name {@code "<init>"}), the initialization method (identified with the name {@code "<clinit>"}) if
 		 * present, and any synthetic methods created by the compiler. Methods are returned in the order
 		 * they occur in the class file. Generic signatures are described in the signature attribute section
 		 * in The Java™ Virtual Machine Specification. Since JDWP version 1.5.
@@ -2648,8 +2645,7 @@ public class JDWP {
 				ByteBuffer bytes = encodeCommandPacket(3, 2);
 				mClassID.encode(clazz, bytes);
 				JdwpInt.encode(values.size(), bytes);
-				for (int i = 0; i < values.size(); i++) {
-					SetValuesValues setValuesValues = values.get(i);
+				for (SetValuesValues setValuesValues : values) {
 					mFieldID.encode(setValuesValues.fieldID, bytes);
 					mUntaggedvalue.encode(setValuesValues.value, bytes);
 				}
@@ -2680,7 +2676,7 @@ public class JDWP {
 			 * @param clazz     The class type ID.
 			 * @param thread    The thread in which to invoke.
 			 * @param methodID  The method to invoke.
-			 * @param arguments
+			 * @param arguments Invocation arguments
 			 * @param options   Invocation options
 			 */
 			public ByteBuffer encode(long clazz, long thread, long methodID, List<InvokeMethodArguments> arguments, int options)
@@ -2690,8 +2686,7 @@ public class JDWP {
 				mThreadID.encode(thread, bytes);
 				mMethodID.encode(methodID, bytes);
 				JdwpInt.encode(arguments.size(), bytes);
-				for (int i = 0; i < arguments.size(); i++) {
-					InvokeMethodArguments invokeMethodArguments = arguments.get(i);
+				for (InvokeMethodArguments invokeMethodArguments : arguments) {
 					mValue.encode(invokeMethodArguments.arg, bytes);
 				}
 				JdwpInt.encode(options, bytes);
@@ -2737,7 +2732,7 @@ public class JDWP {
 			 * @param clazz     The class type ID.
 			 * @param thread    The thread in which to invoke the constructor.
 			 * @param methodID  The constructor to invoke.
-			 * @param arguments
+			 * @param arguments Invocation arguments
 			 * @param options   Constructor invocation options
 			 */
 			public ByteBuffer encode(long clazz, long thread, long methodID,
@@ -2747,8 +2742,7 @@ public class JDWP {
 				mThreadID.encode(thread, bytes);
 				mMethodID.encode(methodID, bytes);
 				JdwpInt.encode(arguments.size(), bytes);
-				for (int i = 0; i < arguments.size(); i++) {
-					NewInstanceArguments newInstanceArguments = arguments.get(i);
+				for (NewInstanceArguments newInstanceArguments : arguments) {
 					mValue.encode(newInstanceArguments.arg, bytes);
 				}
 				JdwpInt.encode(options, bytes);
@@ -2822,7 +2816,7 @@ public class JDWP {
 		}
 	}
 
-	public class InterfaceType {
+	public static class InterfaceType {
 		private InterfaceType() {
 		}
 	}
@@ -2884,11 +2878,11 @@ public class JDWP {
 
 			public class LineTableReplyData {
 				/**
-				 * Lowest valid code index for the method, >=0, or -1 if the method is native
+				 * Lowest valid code index for the method, {@code >=0}, or -1 if the method is native
 				 */
 				public long start;
 				/**
-				 * Highest valid code index for the method, >=0, or -1 if the method is native
+				 * Highest valid code index for the method, {@code >=0}, or -1 if the method is native
 				 */
 				public long end;
 				/**
@@ -2899,7 +2893,7 @@ public class JDWP {
 
 			public class LineTableReplyDataLines {
 				/**
-				 * Initial code index of the line, start <= lineCodeIndex < end
+				 * Initial code index of the line, {@code start <= lineCodeIndex < end}
 				 */
 				public long lineCodeIndex;
 				/**
@@ -2964,8 +2958,8 @@ public class JDWP {
 			public class VariableTableReplyDataSlots {
 				/**
 				 * First code index at which the variable is visible (unsigned). Used in conjunction with length.
-				 * The variable can be get or set only when the current codeIndex <= current frame code index <
-				 * codeIndex + length
+				 * The variable can be get or set only when the current
+				 * {@code codeIndex <= current frame code index < codeIndex + length}
 				 */
 				public long codeIndex;
 				/**
@@ -2978,7 +2972,7 @@ public class JDWP {
 				public String signature;
 				/**
 				 * Unsigned value used in conjunction with codeIndex. The variable can be get or set only when the
-				 * current codeIndex <= current frame code index < code index + length
+				 * current {@code codeIndex <= current frame code index < code index + length}
 				 */
 				public int length;
 				/**
@@ -3128,8 +3122,8 @@ public class JDWP {
 			public class VarWithGenericSlot {
 				/**
 				 * First code index at which the variable is visible (unsigned). Used in conjunction with length.
-				 * The variable can be get or set only when the current codeIndex <= current frame code index <
-				 * codeIndex + length
+				 * The variable can be get or set only when the current
+				 * {@code codeIndex <= current frame code index < codeIndex + length}
 				 */
 				public long codeIndex;
 				/**
@@ -3146,7 +3140,7 @@ public class JDWP {
 				public String genericSignature;
 				/**
 				 * Unsigned value used in conjunction with codeIndex. The variable can be get or set only when the
-				 * current codeIndex <= current frame code index < code index + length
+				 * current {@code codeIndex <= current frame code index < code index + length}
 				 */
 				public int length;
 				/**
@@ -3185,7 +3179,7 @@ public class JDWP {
 		}
 	}
 
-	public class Field {
+	public static class Field {
 		private Field() {
 		}
 	}
@@ -3307,8 +3301,7 @@ public class JDWP {
 				ByteBuffer bytes = encodeCommandPacket(9, 2);
 				mObjectID.encode(object, bytes);
 				JdwpInt.encode(fields.size(), bytes);
-				for (int i = 0; i < fields.size(); i++) {
-					Long id = fields.get(i);
+				for (Long id : fields) {
 					mFieldID.encode(id, bytes);
 				}
 				setPacketLen(bytes);
@@ -3373,8 +3366,7 @@ public class JDWP {
 				ByteBuffer bytes = encodeCommandPacket(9, 3);
 				mObjectID.encode(object, bytes);
 				JdwpInt.encode(values.size(), bytes);
-				for (int i = 0; i < values.size(); i++) {
-					FieldValueSetter setValuesValues = values.get(i);
+				for (FieldValueSetter setValuesValues : values) {
 					mFieldID.encode(setValuesValues.fieldID, bytes);
 					mUntaggedvalue.encode(setValuesValues.value, bytes);
 				}
@@ -3475,8 +3467,7 @@ public class JDWP {
 				mClassID.encode(clazz, bytes);
 				mMethodID.encode(methodID, bytes);
 				JdwpInt.encode(arguments.size(), bytes);
-				for (int i = 0; i < arguments.size(); i++) {
-					InvokeMethodArguments invokeMethodArguments = arguments.get(i);
+				for (InvokeMethodArguments invokeMethodArguments : arguments) {
 					mValue.encode(invokeMethodArguments.arg, bytes);
 				}
 				JdwpInt.encode(options, bytes);
@@ -4489,8 +4480,7 @@ public class JDWP {
 				mArrayID.encode(arrayObject, bytes);
 				JdwpInt.encode(firstIndex, bytes);
 				JdwpInt.encode(values.size(), bytes);
-				for (int i = 0; i < values.size(); i++) {
-					SetValuesValues setValuesValues = values.get(i);
+				for (SetValuesValues setValuesValues : values) {
 					mUntaggedvalue.encode(setValuesValues.value, bytes);
 				}
 				setPacketLen(bytes);
@@ -5327,8 +5317,7 @@ public class JDWP {
 				mThreadID.encode(thread, bytes);
 				mFrameID.encode(frame, bytes);
 				JdwpInt.encode(slots.size(), bytes);
-				for (int i = 0; i < slots.size(); i++) {
-					GetValuesSlots getValuesSlots = slots.get(i);
+				for (GetValuesSlots getValuesSlots : slots) {
 					JdwpInt.encode(getValuesSlots.slot, bytes);
 					JdwpByte.encode(getValuesSlots.sigbyte, bytes);
 				}
@@ -5394,8 +5383,7 @@ public class JDWP {
 				mThreadID.encode(thread, bytes);
 				mFrameID.encode(frame, bytes);
 				JdwpInt.encode(slotValues.size(), bytes);
-				for (int i = 0; i < slotValues.size(); i++) {
-					SlotValueSetter setValuesSlotValues = slotValues.get(i);
+				for (SlotValueSetter setValuesSlotValues : slotValues) {
 					JdwpInt.encode(setValuesSlotValues.slot, bytes);
 					mValue.encode(setValuesSlotValues.slotValue, bytes);
 				}
@@ -7012,8 +7000,8 @@ public class JDWP {
 	 * object ID will result in the INVALID_OBJECT error code. Garbage collection can be disabled with
 	 * the DisableCollection command, but it is not usually necessary to do so.
 	 */
-	private class JdwpObjectID {
-		private int size;
+	private static class JdwpObjectID {
+		private final int size;
 
 		JdwpObjectID(int objectIDSize) {
 			this.size = objectIDSize;
@@ -7038,8 +7026,8 @@ public class JDWP {
 	 * the possible values of this byte (note that only object tags, not primitive tags, may be used).
 	 * It is followed immediately by the objectID itself.
 	 */
-	private class JdwpTaggedobjectID {
-		private int size;
+	private static class JdwpTaggedobjectID {
+		private final int size;
 
 		JdwpTaggedobjectID(int objectIDSize) {
 			this.size = objectIDSize;
@@ -7061,7 +7049,7 @@ public class JDWP {
 			return 1 + size;
 		}
 
-		public class TaggedObjectIDPacket {
+		public static class TaggedObjectIDPacket {
 			public int tag;
 			public long objectID;
 		}
@@ -7070,8 +7058,8 @@ public class JDWP {
 	/**
 	 * Uniquely identifies an object in the target VM that is known to be a thread.
 	 */
-	private class JdwpThreadID {
-		private int size;
+	private static class JdwpThreadID {
+		private final int size;
 
 		JdwpThreadID(int objectIDSize) {
 			this.size = objectIDSize;
@@ -7094,8 +7082,8 @@ public class JDWP {
 	/**
 	 * Uniquely identifies an object in the target VM that is known to be a thread group.
 	 */
-	private class JdwpThreadGroupID {
-		private int size;
+	private static class JdwpThreadGroupID {
+		private final int size;
 
 		JdwpThreadGroupID(int objectIDSize) {
 			this.size = objectIDSize;
@@ -7119,8 +7107,8 @@ public class JDWP {
 	 * Uniquely identifies an object in the target VM that is known to be a string object. Note: this is
 	 * very different from string, which is a value.
 	 */
-	private class JdwpStringID {
-		private int size;
+	private static class JdwpStringID {
+		private final int size;
 
 		JdwpStringID(int objectIDSize) {
 			this.size = objectIDSize;
@@ -7143,8 +7131,8 @@ public class JDWP {
 	/**
 	 * Uniquely identifies an object in the target VM that is known to be a module object.
 	 */
-	private class JdwpModuleID {
-		private int size;
+	private static class JdwpModuleID {
+		private final int size;
 
 		JdwpModuleID(int objectIDSize) {
 			this.size = objectIDSize;
@@ -7167,8 +7155,8 @@ public class JDWP {
 	/**
 	 * Uniquely identifies an object in the target VM that is known to be a class loader object.
 	 */
-	private class JdwpClassLoaderID {
-		private int size;
+	private static class JdwpClassLoaderID {
+		private final int size;
 
 		JdwpClassLoaderID(int objectIDSize) {
 			this.size = objectIDSize;
@@ -7191,8 +7179,8 @@ public class JDWP {
 	/**
 	 * Uniquely identifies an object in the target VM that is known to be a class object.
 	 */
-	private class JdwpClassObjectID {
-		private int size;
+	private static class JdwpClassObjectID {
+		private final int size;
 
 		JdwpClassObjectID(int objectIDSize) {
 			this.size = objectIDSize;
@@ -7215,8 +7203,8 @@ public class JDWP {
 	/**
 	 * Uniquely identifies an object in the target VM that is known to be an array.
 	 */
-	private class JdwpArrayID {
-		private int size;
+	private static class JdwpArrayID {
+		private final int size;
 
 		JdwpArrayID(int objectIDSize) {
 			this.size = objectIDSize;
@@ -7243,8 +7231,8 @@ public class JDWP {
 	 * referenceTypeID is not reused to identify a different reference type, regardless of whether the
 	 * referenced class has been unloaded.
 	 */
-	private class JdwpReferenceTypeID {
-		private int size;
+	private static class JdwpReferenceTypeID {
+		private final int size;
 
 		JdwpReferenceTypeID(int referenceTypeIDSize) {
 			this.size = referenceTypeIDSize;
@@ -7267,8 +7255,8 @@ public class JDWP {
 	/**
 	 * Uniquely identifies a reference type in the target VM that is known to be a class type.
 	 */
-	private class JdwpClassID {
-		private int size;
+	private static class JdwpClassID {
+		private final int size;
 
 		JdwpClassID(int referenceTypeIDSize) {
 			this.size = referenceTypeIDSize;
@@ -7291,8 +7279,8 @@ public class JDWP {
 	/**
 	 * Uniquely identifies a reference type in the target VM that is known to be an interface type.
 	 */
-	private class JdwpInterfaceID {
-		private int size;
+	private static class JdwpInterfaceID {
+		private final int size;
 
 		JdwpInterfaceID(int referenceTypeIDSize) {
 			this.size = referenceTypeIDSize;
@@ -7315,8 +7303,8 @@ public class JDWP {
 	/**
 	 * Uniquely identifies a reference type in the target VM that is known to be an array type.
 	 */
-	private class JdwpArrayTypeID {
-		private int size;
+	private static class JdwpArrayTypeID {
+		private final int size;
 
 		JdwpArrayTypeID(int referenceTypeIDSize) {
 			this.size = referenceTypeIDSize;
@@ -7343,8 +7331,8 @@ public class JDWP {
 	 * uniquely identify one method. The referenceTypeID can identify either the declaring type of the
 	 * method or a subtype.
 	 */
-	private class JdwpMethodID {
-		private int size;
+	private static class JdwpMethodID {
+		private final int size;
 
 		JdwpMethodID(int methodIDSize) {
 			this.size = methodIDSize;
@@ -7371,8 +7359,8 @@ public class JDWP {
 	 * uniquely identify one field. The referenceTypeID can identify either the declaring type of the
 	 * field or a subtype.
 	 */
-	private class JdwpFieldID {
-		private int size;
+	private static class JdwpFieldID {
+		private final int size;
 
 		JdwpFieldID(int fieldIDSize) {
 			this.size = fieldIDSize;
@@ -7397,8 +7385,8 @@ public class JDWP {
 	 * the entire VM (not only within a given thread). The frameID need only be valid during the time
 	 * its thread is suspended.
 	 */
-	private class JdwpFrameID {
-		private int size;
+	private static class JdwpFrameID {
+		private final int size;
 
 		JdwpFrameID(int frameIDSize) {
 			this.size = frameIDSize;
